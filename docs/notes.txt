@@ -1,0 +1,67 @@
+
+
+**Retrieval-Augmented Generation (RAG) – Notes**
+
+**1. What is RAG?**
+Retrieval-Augmented Generation (RAG) is a method where an LLM answers a question *using external documents*. Instead of relying only on what the model was trained on, we first **retrieve** relevant text from our own knowledge base and then **generate** the answer using that text. So it’s: **retrieve → then generate**.
+
+**2. Why do we need RAG?**
+
+* LLMs forget or don’t know project-specific info.
+* We want answers based on *our* PDFs, notes, reports.
+* We want to update knowledge without retraining the model.
+  RAG solves this by letting the model “look up” information right before answering.
+
+**3. Main components of a RAG system**
+
+1. **Document ingestion** – load files (txt, pdf, etc.), clean them.
+2. **Chunking / splitting** – long documents are cut into smaller chunks (e.g. 150–500 tokens) so retrieval is more accurate.
+3. **Embedding** – every chunk is converted to a vector (a list of numbers) that represents its meaning.
+4. **Vector database** (e.g. **Chroma**, Qdrant, Pinecone) – stores those vectors and lets us do fast similarity search.
+5. **Retriever** – when the user asks something, we embed the question and ask the vector DB: “give me the top-k most similar chunks.”
+6. **LLM / Generator** – we give the retrieved chunks + the user question to the LLM and ask it to write the final answer.
+7. **Answer** – shown to the user, usually citing the retrieved context.
+
+**4. RAG pipeline (step-by-step)**
+**(A) Build / ingest step (done once or when docs change)**
+
+* Read documents
+* Split into chunks
+* Create embeddings
+* Store in vector DB (Chroma)
+
+**(B) Query step (done every time user asks)**
+
+* User asks a question
+* Embed the question
+* Search in vector DB for similar chunks (semantic search)
+* Take top-k chunks
+* Send them + question to LLM
+* LLM generates answer based only on that context
+
+**5. Why do we store in Chroma/Qdrant?**
+Because we want to **reuse** embeddings and **search fast**. Doing embeddings every time is slow. Chroma keeps the vectors in a folder (`chroma_db/`) and lets us call `similarity_search()` from LangChain.
+
+**6. Benefits of RAG**
+
+* Up-to-date: change documents → answers change
+* Cheaper than fine-tuning
+* More controllable: we can see which chunks were used
+* Good for internal/company/project knowledge
+
+**7. Limitations**
+
+* If the document is not in the DB, RAG can’t find it
+* Retrieval quality depends on good chunking + good embeddings
+* LLM can still hallucinate if context is poor
+
+**8. In this project**
+
+* Framework: **LangChain**
+* Vector DB: **Chroma**
+* Ingestion: `main.py` (reads `docs/notes.txt`, splits, stores)
+* Retrieval: `query.py` (takes question, does `similarity_search`)
+* Generation: can be OpenAI (needs key) or local (Ollama). If not available, we show retrieved chunks.
+
+---
+
