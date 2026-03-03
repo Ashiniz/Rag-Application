@@ -1,0 +1,10 @@
+streamlit
+scikit-learn
+langchain
+langchain-core
+langchain-community
+langchain-chroma
+chromadb
+openai
+langfuse
+python-dotenv
