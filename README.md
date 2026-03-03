@@ -57,5 +57,5 @@ This project avoids heavy embedding models and instead uses TF-IDF to keep the s
 Security Note: The `.env` file and `chroma_db` directory are not committed to the repository. No API keys are stored in the source code.
 
 Author:  
-Ashiniz  
+Ashiniz
 AI Systems | RAG | LLM Applications
